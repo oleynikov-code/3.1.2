@@ -1,50 +1,52 @@
 package com.kata312.web.service;
 
-import com.kata312.web.dao.UserDao;
 import com.kata312.web.models.User;
+import com.kata312.web.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImp implements UserService {
-    private UserDao userDao;
+    private final UserRepo userRepo;
 
     @Autowired
-    public UserServiceImp(UserDao userDao){
-        this.userDao = userDao;
+    public UserServiceImp(UserRepo userRepo){
+        this.userRepo = userRepo;
     }
 
     @Override
-    @Transactional
     public List<User> getAllUsers() {
-        return userDao.getAllUsers();
+        return userRepo.findAll();
     }
 
     @Override
-    @Transactional
-    public User getUser(int id) {
-        return userDao.getUser(id);
+    public User getUser(long id) {
+        Optional<User> user = userRepo.findById(id);
+        return user.orElse(null);
     }
 
     @Override
     @Transactional
     public void saveUser(User user) {
-        userDao.saveUser(user);
+        userRepo.save(user);
     }
 
     @Override
     @Transactional
-    public void updateUser(User user) {
-        userDao.updateUser(user);
+    public void updateUser(User user, long id) {
+        user.setId(id);
+        userRepo.save(user);
     }
 
     @Override
     @Transactional
-    public void deleteUser(int id) {
-        userDao.deleteUser(id);
+    public void deleteUser(long id) {
+        userRepo.deleteById(id);
     }
 }
